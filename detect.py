@@ -1,5 +1,6 @@
 """
 Usage:
+    detect.py preprocess <INPUT> <OUTPUT>
     detect.py train [-d] [-v NUM] [-m DIR] <PATH>
     detect.py eval [-v NUM] [-m DIR] <PATH>
     detect.py test [-s] [-v NUM] [-m DIR] [<FILE> ...]
@@ -28,15 +29,19 @@ import json
 import re
 
 from docopt import docopt
+from preprocess import make_corpus
 
 from defs import *
 
 def main(args):
     
+    preprocess  = args['preprocess']
     train       = args['train']
     evaluate    = args['eval']
     test        = args['test']
     data_path   = args['<PATH>']
+    input_path  = args['<INPUT>']
+    output_path = args['<OUTPUT>']
 
     model_path  = args['--model']
     verbose     = args['--verbose']
@@ -53,6 +58,9 @@ def main(args):
     from train import train_model, load_model
 
     labels = []
+
+    if preprocess:
+        make_corpus(input_path, output_path)
 
     if train:
         model, labels = train_model(data_path, 
@@ -76,7 +84,6 @@ def main(args):
         perf = model.evaluate(raw_test_ds)
         print("Model performance:", perf)
         exit()
-
 
     if summary:
         model.summary()
