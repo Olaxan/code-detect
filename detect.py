@@ -50,17 +50,15 @@ def main(args):
     import tensorflow as tf
     import tensorflow.keras as keras
 
-    from train import setup
+    from train import train_model, load_model
 
-    labels = sorted(os.listdir(train_path))
-    num_labels = len(labels)
+    labels = []
 
     if retrain:
-        _, model = setup(train_path, num_labels)
-        if not discard:
-            model.save(model_path)
+        save_path = None if discard else model_path
+        model, labels = train_model(train_path, save_path=save_path)
     elif has_model:
-        model = keras.models.load_model(model_path)
+        model, labels = load_model(model_path)
     else:
         print("No trained model could be located.")
         exit()

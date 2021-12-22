@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 import tensorflow.keras as keras
 
@@ -6,17 +7,39 @@ from keras.models import Sequential
 
 from defs import *
 
-def setup(path, num_labels):
+def save_labels(labels, save_path):
+    try:
+        with open(save_path, 'w') as f:
+            f.write('\n'.join(labels))
+    except IOError:
+        print(f"Error: Could not open file '{save_path}' for writing.")
+
+def load_labels(load_path):
+
+    lines = []
+
+    try:
+        with open(load_path, 'r') as f:
+            lines = f.readlines()
+    except IOError:
+        print(f"Error: Could not open file '{load_path}' for reading.")
+
+    return lines
+
+def train_model(train_path, save_path):
+
+    labels = sorted(os.listdir(train_path))
+    num_labels = len(labels)
 
     raw_train_ds = keras.utils.text_dataset_from_directory(
-            path,
+            train_path,
             batch_size=VECTOR_BATCH_SIZE,
             validation_split=0.2,
             subset='training',
             seed=SEED)
 
     raw_val_ds = keras.utils.text_dataset_from_directory(
-            path,
+            train_path,
             batch_size=VECTOR_BATCH_SIZE,
             validation_split=0.2,
             subset='validation',
@@ -79,4 +102,17 @@ def setup(path, num_labels):
             optimizer='adam', 
             metrics=['accuracy'])
 
-    return model, e2e_model
+    if save_path is not None:
+        e2e_model.save(save_path)
+        labels_path = os.path.join(save_path, LABELS_NAME)
+        save_labels(labels, labels_path)
+
+    return e2e_model, labels
+
+def load_model(path):
+    
+    model = keras.models.load_model(path)
+    labels_path = os.path.join(path, LABELS_NAME)
+    labels = load_labels(labels_path)
+
+    return model, labels
