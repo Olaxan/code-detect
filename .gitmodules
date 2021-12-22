@@ -1,0 +1,9 @@
+[submodule "datasets/sample-programs"]
+	path = datasets/sample-programs
+	url = https://github.com/TheRenegadeCoder/sample-programs.git
+[submodule "datasets/deep-learning-lang-detection"]
+	path = datasets/deep-learning-lang-detection
+	url = https://github.com/aliostad/deep-learning-lang-detection.git
+[submodule "datasets/reservedwordsearch"]
+	path = datasets/reservedwordsearch
+	url = https://github.com/jgornick/reservedwordsearch.git
