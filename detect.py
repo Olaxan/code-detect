@@ -1,6 +1,6 @@
 """
 Usage:
-    detect.py preprocess <INPUT> <OUTPUT>
+    detect.py preprocess [--min-files=<NUM>] [--exclude=<FILE ...>] <INPUT> <OUTPUT>
     detect.py train [-d] [-v NUM] [-m DIR] <PATH>
     detect.py eval [-v NUM] [-m DIR] <PATH>
     detect.py test [-s] [-v NUM] [-m DIR] [<FILE> ...]
@@ -19,14 +19,13 @@ Options:
     -s                      Print a summary of the trained model
     -v NUM --verbose=NUM    Specify the verbosity of the logging (0-3) [default: 1]
     -m DIR --model=DIR      Specify the path to a saved model [default: ./models/model.SavedModel]
+    --min-files=<NUM>       Specify the minimum number of examples for the preprocessor to include in the corpus [default: 1]
+    --exclude=<FILE>        Specify files to exclude from the corpus
 """
 
 import os
 import sys
-import getopt
 import shutil
-import json
-import re
 
 from docopt import docopt
 from preprocess import make_corpus
@@ -60,7 +59,9 @@ def main(args):
     labels = []
 
     if preprocess:
-        make_corpus(input_path, output_path)
+        exclude     = args['--exclude']
+        min_files   = args['--min-files']
+        make_corpus(input_path, output_path, int(min_files), exclude)
 
     if train:
         model, labels = train_model(data_path, 

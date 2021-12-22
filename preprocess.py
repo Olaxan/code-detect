@@ -31,5 +31,5 @@ def make_corpus(input_path, output_path, min_files=4, exclude=[]):
                 os.rename(full_path, pre + '.txt')
 
         if len(files) < min_files:
-            print(f"Warning: Too few files ({len(files)}) in {root}")
+            print(f"Too few files ({len(files)}/{min_files}) in {root}, skipping")
             shutil.rmtree(root)
