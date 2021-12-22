@@ -26,7 +26,7 @@ def load_labels(load_path):
 
     return lines
 
-def train_model(train_path, save_path):
+def train_model(train_path, save_path, verbose=1):
 
     labels = sorted(os.listdir(train_path))
     num_labels = len(labels)
@@ -111,8 +111,11 @@ def train_model(train_path, save_path):
 
 def load_model(path):
     
-    model = keras.models.load_model(path)
-    labels_path = os.path.join(path, LABELS_NAME)
-    labels = load_labels(labels_path)
+    try:
+        model = keras.models.load_model(path)
+        labels_path = os.path.join(path, LABELS_NAME)
+        labels = load_labels(labels_path)
+    except IOError:
+        return None, []
 
     return model, labels

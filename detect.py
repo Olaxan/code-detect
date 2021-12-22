@@ -1,23 +1,23 @@
 """
 Usage:
-    detect.py [-hreds] [-v NUM] [-m DIR] [-x DIR] [-t DIR] [FILE ...]
+    detect.py train [-d] [-v NUM] [-m DIR] <PATH>
+    detect.py eval [-v NUM] [-m DIR] <PATH>
+    detect.py test [-s] [-v NUM] [-m DIR] [<FILE> ...]
+    detect.py (-h | --help)
+    detect.py --version
 
 Uses deep learning convolutional networks to detect source file contents.
 
 Arguments:
-    FILE    A file, the contents of which will be detected
+    FILE    A file, the contents of which will be detected by the network.
 
 Options:
     -h --help               Show this message
-    -r                      Retrain the network
-    -e                      Evaluate the trained model against a test set
+    --version               Show the program version
     -d                      Discard the model efter training (i.e. do not save it)
     -s                      Print a summary of the trained model
     -v NUM --verbose=NUM    Specify the verbosity of the logging (0-3) [default: 1]
     -m DIR --model=DIR      Specify the path to a saved model [default: ./models/model.SavedModel]
-    -x DIR --train=DIR      Specify the path to directory labelled training data [default: ./data/train/]
-    -t DIR --test=DIR       Specify the path to directory labelled test data [default: ./data/test/]
-
 """
 
 import os
@@ -33,19 +33,19 @@ from defs import *
 
 def main(args):
     
+    train       = args['train']
+    evaluate    = args['eval']
+    test        = args['test']
+    data_path   = args['<PATH>']
 
     model_path  = args['--model']
-    train_path  = args['--train']
-    test_path   = args['--test']
     verbose     = args['--verbose']
-    retrain     = args['-r']
-    evaluate    = args['-e']
     discard     = args['-d']
     summary     = args['-s'] 
 
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(3 - int(verbose))
+    files       = args['<FILE>']
 
-    has_model = os.path.exists(model_path)
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(3 - int(verbose))
 
     import tensorflow as tf
     import tensorflow.keras as keras
@@ -54,48 +54,55 @@ def main(args):
 
     labels = []
 
-    if retrain:
-        save_path = None if discard else model_path
-        model, labels = train_model(train_path, save_path=save_path)
-    elif has_model:
-        model, labels = load_model(model_path)
-    else:
-        print("No trained model could be located.")
+    if train:
+        model, labels = train_model(data_path, 
+                verbose=int(verbose),
+                save_path=None if discard else model_path)
         exit()
 
-    if summary:
-        model.summary()
+    model, labels = load_model(model_path)
+
+    if model is None:
+        print(f"No model found in {model_path}")
+        print(f"Train a model using the 'train' command")
+        print(f"Use '--help' for more info")
+        exit()
 
     if evaluate:
         raw_test_ds = keras.utils.text_dataset_from_directory(
-                test_path,
+                data_path,
                 batch_size=VECTOR_BATCH_SIZE)
 
         perf = model.evaluate(raw_test_ds)
         print("Model performance:", perf)
+        exit()
 
-    texts = []
-    files = args['FILE']
 
-    for file in files:
-        try:
-            with open(file) as f:
-                texts.append(f.read())
-        except IOError:
-            files.remove(file)
-            print(f"Error: Failed to open file {file}")
+    if summary:
+        model.summary()
 
-    if len(files) > 0:
-        predictions = model.predict(texts)
-        predicted_labels = tf.argmax(predictions, axis=1)
+    if test:
+        texts = []
 
-        for file, prediction in zip(files, predicted_labels):
-            print(f"'{file}', detected language: {labels[prediction].upper()}")
+        for file in files:
+            try:
+                with open(file) as f:
+                    texts.append(f.read())
+            except IOError:
+                files.remove(file)
+                print(f"Error: Failed to open file {file}")
+
+        if len(files) > 0:
+            predictions = model.predict(texts)
+            predicted_labels = tf.argmax(predictions, axis=1)
+
+            for file, prediction in zip(files, predicted_labels):
+                print(f"'{file}', detected language: {labels[prediction].upper()}")
 
 
 
 
 if __name__ == "__main__":
-    args = docopt(__doc__)
+    args = docopt(__doc__, version='detect.py version 1.0')
     main(args)
 
