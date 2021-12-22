@@ -35,4 +35,19 @@ Options:
     --exclude=<FILE>        Specify files to exclude from the corpus
 ```
 
-## 
+## Usage
+
+Trained models are not included in this repository, but it is quick and easy to create your own.
+
+### Preprocessing
+Before the model can be trained, the data must be compiled into a structure Keras can understand. A Keras vectorization layer uses directory names for labels, and all files must have a '.txt' extension.
+
+Use the preprocessor to create a dataset.
+
+`python -m detect preprocess --min-files=N --exclude='README.md' --exclude='testinfo.yml' data_dir/ output_dir/`
+
+The command above will walk through *data_dir/*, moving all bottom-level directories to the *output_dir/*, and changing the extensions of all files within to '.txt'. The original directory is not changed.
+
+Specifying *--min-files=N* means labelled directories with less than N files are skipped.
+
+Specifying *--exclude=FILE* means all occurences of the file will be skipped when preprocessing. This can be useful to ignore readme files and the likes. The option can be supplied many times to ignore multiple files.
