@@ -44,10 +44,50 @@ Before the model can be trained, the data must be compiled into a structure Kera
 
 Use the preprocessor to create a dataset.
 
-`python -m detect preprocess --min-files=N --exclude='README.md' --exclude='testinfo.yml' data_dir/ output_dir/`
+`python -m detect preprocess --min-files=N --exclude='README.md' --exclude='testinfo.yml' input_dir/ data_dir/`
 
-The command above will walk through *data_dir/*, moving all bottom-level directories to the *output_dir/*, and changing the extensions of all files within to '.txt'. The original directory is not changed.
+The command above will walk through *input_dir/*, moving all bottom-level directories to the *data_dir/*, and changing the extensions of all files within to '.txt'. The original directory is not changed.
 
 Specifying *--min-files=N* means labelled directories with less than N files are skipped.
 
 Specifying *--exclude=FILE* means all occurences of the file will be skipped when preprocessing. This can be useful to ignore readme files and the likes. The option can be supplied many times to ignore multiple files.
+
+### Training
+
+Train the model on the newly processed data by running the detect script with the 'train' parameter.
+
+`python -m detect train data_dir/`
+`python -m detect train -m model_path/model.SavedModel data_dir/`
+
+The *-m* or *--model=* options can be used to specify the name of the output model file. The same option must then be used in evaluation and testing mode to find.
+
+Passing *-d* means the model is discarded after training, and not saved. I suppose you can use it to evaluate training performance.
+
+### Evaluating
+
+A dataset of labelled raw strings (non-vectorized) can be used to evaluate the final end-to-end model.
+
+`python -m detect eval test_dir/`
+
+### Testing Files
+
+The finished model can be used to identify files in any of the trained languages.
+
+`python -m detect test testfile.cpp testfile.sh testfile.h`
+
+### Tips
+
+* After training, supported labels are saved in the model directory as 'labels.txt'. These labels can be changed to a more human-readable format without harm (i.e. cplusplus -> C++), as long as the order is maintained.
+
+## Requirements
+
+Due to an apparently long-standing issue with Keras' saving of models with ragged tensors, this program (at the moment of writing) requires *tf-nightly*.
+
+```
+docopt==0.6.2
+keras-nightly==2.8.0.dev2021122108
+Keras-Preprocessing==1.1.2
+numpy==1.21.5
+pandas==1.3.5
+tf-nightly==2.8.0.dev20211221
+```
