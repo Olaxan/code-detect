@@ -1,9 +1,0 @@
-folder:
-  extension: ".pas"
-  naming: "underscore"
-
-container:
-  image: "cyberdojofoundation/freepascal"
-  tag: "latest"
-  build: "fpc {{ source.name }}{{ source.extension }}"
-  cmd: "./{{ source.name }}"
