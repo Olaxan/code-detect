@@ -78,6 +78,7 @@ The finished model can be used to identify files in any of the trained languages
 ## Tips
 
 * After training, supported labels are saved in the model directory as 'labels.txt'. These labels can be changed to a more human-readable format without harm (i.e. cplusplus -> C++), as long as the order is maintained.
+* Various training parameters (epochs, batch sizes...) are hard-coded in defs.py. Future releases may see this changed to a configuration file.
 
 ## Requirements
 
