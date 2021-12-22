@@ -75,7 +75,7 @@ The finished model can be used to identify files in any of the trained languages
 
 `python -m detect test testfile.cpp testfile.sh testfile.h`
 
-### Tips
+## Tips
 
 * After training, supported labels are saved in the model directory as 'labels.txt'. These labels can be changed to a more human-readable format without harm (i.e. cplusplus -> C++), as long as the order is maintained.
 
