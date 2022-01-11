@@ -38,3 +38,4 @@ pip-delete-this-directory.txt
 
 # Do not include trained models
 models/
+data/
